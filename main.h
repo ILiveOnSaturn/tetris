@@ -6,11 +6,11 @@
 #define TETRIS_MAIN_H
 
 int main();
-void setup();
 void end_game(const char* reason);
+void clear_grid();
+void setup();
 void draw_grid(unsigned short animation);
 void loop();
-void clear_grid();
 void get_bag(short* bag);
 
 #endif //TETRIS_MAIN_H

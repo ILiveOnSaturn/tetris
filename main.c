@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "main.h"
-#include "parts.h"
 
 #define WIDTH 10 //note that the width should be twice of the normal console grid because of squares.
 #define HEIGHT 20
@@ -12,6 +11,7 @@
 #define MAX_PARTS 7
 
 unsigned short grid[WIDTH][HEIGHT] = {0};
+int level = 0;
 
 int main() {
     setup();
@@ -19,6 +19,14 @@ int main() {
     loop();
     end_game("");
     return 0;
+}
+
+void clear_grid() {
+	for (int i=0; i<WIDTH; i++) {
+		for (int j=0; j<HEIGHT; j++) {
+			grid[i][j] = 0;
+		}
+	}
 }
 
 void setup() {
@@ -39,14 +47,6 @@ void setup() {
     clear_grid();
 }
 
-void clear_grid() {
-    for (int i=0; i<WIDTH; i++) {
-        for (int j=0; j<HEIGHT; j++) {
-            grid[i][j] = 0;
-        }
-    }
-}
-
 void loop() {
     bool running = TRUE;
     short bag[MAX_PARTS];
@@ -57,27 +57,33 @@ void loop() {
     }
     int parts_in_bag = 4;
     while (running) {
-
+		getch();
+		running = FALSE;
     }
 }
 
 void get_bag(short* bag) {
-    short parts[MAX_PARTS] = {1, 2, 3, 4, 5, 6, 7};
-    int part_num = MAX_PARTS;
-    int indx;
-    for (int i=0; i<MAX_PARTS; i++) {
-        indx = rand()%(6-i);
-        bag[i] = parts[indx];
-        for (int j=indx; j<part_num-1; j++) {
-            parts[j] = parts[j+1];
-        }
-        --part_num;
-    }
+    short parts[MAX_PARTS];
+   	for (int i=0; i<MAX_PARTS; i++) {
+		parts[i] = i+1;
+	}
+	short t;
+	int j;
+	for (int i=0; i<MAX_PARTS; i++) {
+		j = rand()%MAX_PARTS;
+		t = parts[i];
+		parts[i] = parts[j];
+		parts[j] = t;
+	}
+	for (int i=0; i<MAX_PARTS; i++) {
+		bag[i] = parts[i];
+	}
 }
 
 void end_game(const char* reason) {
     if (reason != NULL) {
         printw("%s", reason);
+        refresh();
         getch();
     }
     endwin();
