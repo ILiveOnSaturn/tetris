@@ -6,9 +6,10 @@
 
 #define WIDTH 10 //note that the width should be twice of the normal console grid because of squares.
 #define HEIGHT 20
-#define BLOCK ██
 #define GRID_FILE_NAME "grid.txt"
 #define MAX_PARTS 7
+
+char* block = "██";
 
 unsigned short grid[WIDTH][HEIGHT] = {0};
 int level = 0;
@@ -18,7 +19,6 @@ int x, y;
 
 int main() {
     setup();
-    draw_grid(1);
     loop();
     end_game("");
     return 0;
@@ -51,6 +51,7 @@ void setup() {
 }
 
 void loop() {
+    draw_grid(1);
     bool running = TRUE;
     short bag[MAX_PARTS];
     get_bag(bag);
@@ -60,7 +61,8 @@ void loop() {
     }
     int parts_in_bag = 4;
     while (running) {
-		getch();
+		//getch();
+        draw_three_next(three_next);
 		running = FALSE;
     }
 }
@@ -111,4 +113,23 @@ void draw_grid(unsigned short animation) {
     fclose(ptr);
 }
 
+void draw_part(short n, int x, int y) {
+    move(x, y);
+    attron(COLOR_PAIR(n));
+    for (int i=0; i<parts[n].width; i++) {
+        for (int j=0; j<parts[n].width; j++) {
+            if (parts[n].shape[i][j]) {
+                mvprintw(x+j*2, y+i*2, "%s", block);
+            }
+        }
+    }
+    attroff(COLOR_PAIR(n));
+}
 
+void draw_three_next(short* next) {
+    int row;
+    for (int i=0; i<3; i++) {
+        row = 40-(parts[next[i]].width);
+        draw_part(next[i], row, 3+i*3);
+    }
+}
