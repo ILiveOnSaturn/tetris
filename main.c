@@ -13,6 +13,9 @@
 unsigned short grid[WIDTH][HEIGHT] = {0};
 int level = 0;
 
+Tetrimino current;
+int x, y;
+
 int main() {
     setup();
     draw_grid(1);
