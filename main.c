@@ -118,12 +118,15 @@ void draw_part(short n, int x, int y) {
     attron(COLOR_PAIR(n));
     for (int i=0; i<parts[n].width; i++) {
         for (int j=0; j<parts[n].width; j++) {
+            mvprintw(0, 0, "%d %d", i, j);
+            refresh();
             if (parts[n].shape[i][j]) {
                 mvprintw(x+j*2, y+i*2, "%s", block);
             }
         }
     }
     attroff(COLOR_PAIR(n));
+    refresh();
 }
 
 void draw_three_next(short* next) {
