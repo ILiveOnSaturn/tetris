@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #include "main.h"
 
 #define WIDTH 10 //note that the width should be twice of the normal console grid because of squares.
@@ -16,6 +17,16 @@ int level = 0;
 
 Tetrimino current;
 int x, y;
+
+const Tetrimino parts[MAX_PARTS] = {
+        {(short *[]){(short []){1, 1, 0}, (short []){0, 1, 1}, (short []){0, 0, 0}}, 3},         					    	//Z
+        {(short *[]){(short []){0, 2, 2}, (short []){2, 2, 0}, (short []){0, 0, 0}}, 3}, 		        			    	//S
+        {(short *[]){(short []){3, 3}, (short []){3, 3}}, 2}, 		    							        	        	//O
+        {(short *[]){(short []){4, 0, 0}, (short []){4, 4, 4}, (short []){0, 0, 0}}, 3},					             	//J
+        {(short *[]){(short []){0, 0, 5}, (short []){5, 5, 5}, (short []){0, 0, 0}}, 3}, 					            	//L
+        {(short *[]){(short []){0, 6, 0}, (short []){6, 6, 6}, (short []){0, 0, 0}}, 3}, 			        			    //T
+        {(short *[]){(short []){0, 0, 0, 0}, (short []){7, 7, 7, 7}, (short []){0, 0, 0, 0}, (short []){0, 0, 0, 0}}, 4} 	//I
+};
 
 int main() {
     setup();
@@ -42,9 +53,9 @@ void setup() {
     start_color();
     init_pair(1, COLOR_RED, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
-    init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(3, COLOR_WHITE, COLOR_BLACK);
     init_pair(4, COLOR_BLUE, COLOR_BLACK);
-    init_pair(5, COLOR_WHITE, COLOR_BLACK);
+    init_pair(5, COLOR_YELLOW, COLOR_BLACK);
     init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(7, COLOR_CYAN, COLOR_BLACK);
     clear_grid();
@@ -56,7 +67,7 @@ void loop() {
     short bag[MAX_PARTS];
     get_bag(bag);
     short three_next[3];
-    for (int i=0; i<2; i++) {
+    for (int i=0; i<3; i++) {
         three_next[i] = bag[i];
     }
     int parts_in_bag = 4;
@@ -113,26 +124,25 @@ void draw_grid(unsigned short animation) {
     fclose(ptr);
 }
 
-void draw_part(short n, int x, int y) {
-    move(x, y);
-    attron(COLOR_PAIR(n));
+void draw_part(short n, int x_print, int y_print) {
+    attron(COLOR_PAIR(n+1));
     for (int i=0; i<parts[n].width; i++) {
         for (int j=0; j<parts[n].width; j++) {
-            mvprintw(0, 0, "%d %d", i, j);
             refresh();
-            if (parts[n].shape[i][j]) {
-                mvprintw(x+j*2, y+i*2, "%s", block);
+            if (parts[n].shape[i][j] != 0) {
+                mvprintw(y_print + i, x_print + j * 2, "%s", block);
             }
+            refresh();
         }
     }
-    attroff(COLOR_PAIR(n));
+    attroff(COLOR_PAIR(n+1));
     refresh();
 }
 
 void draw_three_next(short* next) {
     int row;
     for (int i=0; i<3; i++) {
-        row = 40-(parts[next[i]].width);
-        draw_part(next[i], row, 3+i*3);
+        row = 40-(parts[next[i]-1].width);
+        draw_part(next[i]-1, row, 2+i*3);
     }
 }
