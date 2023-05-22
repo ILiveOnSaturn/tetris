@@ -19,5 +19,6 @@ void draw_part(short n, int x_print, int y_print);
 void draw_three_next(short* next);
 void loop();
 void get_bag(short* bag);
+void draw_grid_inside();
 
 #endif //TETRIS_MAIN_H

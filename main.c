@@ -6,17 +6,17 @@
 #include "main.h"
 
 #define WIDTH 10 //note that the width should be twice of the normal console grid because of squares.
-#define HEIGHT 20
+#define HEIGHT 21
+#define GRID_OFFSET_COL 13
+#define GRID_OFFSET_ROW 2
 #define GRID_FILE_NAME "grid.txt"
 #define MAX_PARTS 7
 
 char* block = "██";
 
-unsigned short grid[WIDTH][HEIGHT] = {0};
+unsigned short grid[HEIGHT][WIDTH] = {1}; //Top is in row 0
 int level = 0;
 
-Tetrimino current;
-int x, y;
 
 const Tetrimino parts[MAX_PARTS] = {
         {(short *[]){(short []){1, 1, 0}, (short []){0, 1, 1}, (short []){0, 0, 0}}, 3},         					    	//Z
@@ -50,6 +50,7 @@ void setup() {
     raw();
     keypad(stdscr, 1);
     noecho();
+	curs_set(0);
     start_color();
     init_pair(1, COLOR_RED, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
@@ -67,13 +68,21 @@ void loop() {
     short bag[MAX_PARTS];
     get_bag(bag);
     short three_next[3];
-    for (int i=0; i<3; i++) {
-        three_next[i] = bag[i];
+	short current = bag[0];
+	int col = 3;
+	int row = 0;
+	for (int i=0; i<3; i++) {
+        three_next[i] = bag[i+1];
     }
-    int parts_in_bag = 4;
+    int parts_in_bag = 3;
     while (running) {
 		//getch();
+		if (parts_in_bag == 0) {
+			get_bag(bag);
+		}
+		draw_part(current-1, col*2+GRID_OFFSET_COL, row+GRID_OFFSET_ROW);
         draw_three_next(three_next);
+		//draw_grid_inside();
 		running = FALSE;
     }
 }
@@ -103,6 +112,21 @@ void end_game(const char* reason) {
         getch();
     }
     endwin();
+}
+
+void draw_grid_inside() {
+	for (int i=0; i<HEIGHT; i++) {
+		move(GRID_OFFSET_ROW+i, GRID_OFFSET_COL);
+		for (int j=0; j<WIDTH; j++) {
+			if (grid[i][j] != 0) {
+				attron(COLOR_PAIR(grid[i][j]));
+				printw("%s", block);
+				attroff(COLOR_PAIR(grid[i][j]));
+			} else {
+				printw("  ");
+			}
+		}
+	}
 }
 
 void draw_grid(unsigned short animation) {
@@ -140,9 +164,10 @@ void draw_part(short n, int x_print, int y_print) {
 }
 
 void draw_three_next(short* next) {
-    int row;
-    for (int i=0; i<3; i++) {
-        row = 40-(parts[next[i]-1].width);
-        draw_part(next[i]-1, row, 2+i*3);
+    int col;
+    for (int i=0; i<3; i++) { 
+		mvprintw(2+i*3, 47, "%d", next[i]);
+        col = 40-(parts[next[i]-1].width);
+        draw_part(next[i]-1, col, 2+i*3);
     }
 }
