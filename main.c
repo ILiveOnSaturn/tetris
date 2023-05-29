@@ -14,7 +14,7 @@
 
 char* block = "██";
 
-unsigned short grid[HEIGHT][WIDTH] = {1}; //Top is in row 0
+unsigned short grid[HEIGHT][WIDTH] = {0}; //Top is in row 0
 int level = 0;
 
 
@@ -62,29 +62,47 @@ void setup() {
     clear_grid();
 }
 
+void copy_tetrimino(Tetrimino* part, int reference) {
+	part->width = parts[reference].width;
+	part->shape = (short**)malloc(part->width * sizeof(short*));
+	for (int i=0; i<part->width; i++) {
+		part->shape[i] = (short*)malloc(part->width * sizeof(short*));
+		for (int j=0; j<part->width; j++) {
+			part->shape[i][j] = parts[reference].shape[i][j];
+		}
+	}
+}
+
 void loop() {
     draw_grid(1);
     bool running = TRUE;
     short bag[MAX_PARTS];
     get_bag(bag);
     short three_next[3];
-	short current = bag[0];
-	int col = 3;
-	int row = 0;
+	Tetrimino current;
+	copy_tetrimino(&current, bag[0]-1);
+	int col = 5-(current.width - (current.width/2));
+	int row = -1;
 	for (int i=0; i<3; i++) {
         three_next[i] = bag[i+1];
     }
-    int parts_in_bag = 3;
+    int parts_in_bag = 5;
     while (running) {
-		//getch();
 		if (parts_in_bag == 0) {
 			get_bag(bag);
 		}
-		draw_part(current-1, col*2+GRID_OFFSET_COL, row+GRID_OFFSET_ROW);
+		//draw_part(current-1, col*2+GRID_OFFSET_COL, row+GRID_OFFSET_ROW);
         draw_three_next(three_next);
-		//draw_grid_inside();
+		draw_grid_inside();
+		draw_current(&current, col, row);	
 		running = FALSE;
     }
+	if (current.shape != NULL) {
+		for (int i = 0; i<current.width; i++) {
+			free(current.shape[i]);
+		}
+		free(current.shape);
+	}
 }
 
 void get_bag(short* bag) {
@@ -146,6 +164,18 @@ void draw_grid(unsigned short animation) {
     }
     refresh();
     fclose(ptr);
+}
+
+void draw_current(Tetrimino* curr, int col, int row) {
+	for (int i=0; i < curr->width; i++) {
+		for (int j=0; j < curr->width; j++) {
+			if (curr->shape[i][j] != 0) {
+				attron(COLOR_PAIR(curr->shape[i][j]));
+				mvprintw(row+i + GRID_OFFSET_ROW, (col+j) * 2 + GRID_OFFSET_COL, "%s", block);
+				attroff(COLOR_PAIR(curr->shape[i][j]));	
+			}
+		}
+	}	
 }
 
 void draw_part(short n, int x_print, int y_print) {

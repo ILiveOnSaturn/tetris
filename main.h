@@ -20,5 +20,6 @@ void draw_three_next(short* next);
 void loop();
 void get_bag(short* bag);
 void draw_grid_inside();
+void draw_current(Tetrimino* curr, int col, int row);
 
 #endif //TETRIS_MAIN_H
